@@ -152,10 +152,6 @@ function(linkUAMQP whatExecutableIsBuilding)
     else()
         target_link_libraries(${whatExecutableIsBuilding} uamqp aziotsharedutil ssl crypto)
     endif()
-    
-    if(${use_wsio})
-        target_link_libraries(${whatExecutableIsBuilding} websockets)
-    endif()
 endfunction(linkUAMQP)
 
 function(includeMqtt)
