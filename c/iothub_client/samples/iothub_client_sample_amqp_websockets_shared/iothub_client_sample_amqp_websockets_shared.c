@@ -15,12 +15,12 @@
 #include "certs.h"
 #endif // MBED_BUILD_TIMESTAMP
 
-static const char* hubName = "iot-sdks-test";
-static const char* hubSuffix = "azure-devices.net";
-static const char* deviceId1 = "ewertons-device1";
-static const char* deviceId2 = "ewertons-device2";
-static const char* deviceKey1 = "hT4tkv1auVqMUCZ0HWZFQC0lyuHFf6decNPuc+ZhWCg=";
-static const char* deviceKey2 = "yfIId8422KUMOnDuvhDiz54rg2fQ1Hndbwd/XPh5PUo=";
+static const char* hubName = "[IoT Hub Name]";
+static const char* hubSuffix = "[IoT Hub Suffix]";
+static const char* deviceId1 = "[device id 1]";
+static const char* deviceId2 = "[device id 2]";
+static const char* deviceKey1 = "[device key 1]";
+static const char* deviceKey2 = "[device key 2]";
 
 
 //static int callbackCounter;
