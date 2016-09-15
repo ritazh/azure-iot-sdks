@@ -258,36 +258,19 @@ static int getSecondsSinceEpoch(size_t* seconds)
 	return result;
 }
 
-static char* create_link_name(const char* deviceId, const char* tag, int index)
+static STRING_HANDLE create_link_name(const char* deviceId, const char* tag, int index)
 {
-	char* link_name = NULL;
-
-	if ((link_name = (char*)malloc(sizeof(char) * 1024)) == NULL)
-	{
-		LogError("Failed creating link name: malloc() failed (deviceId: %s, tag: %s; index: %i)", deviceId, tag, index);
-	}
-	else if (sprintf_s(link_name, 1024, "link-%s-%s-%i", deviceId, tag, index) == 0)
-	{
-		LogError("Failed creating link name: sprintf_s() failed (deviceId: %s, tag: %s; index: %i)", deviceId, tag, index);
-	}
-
-	return link_name;
+	return STRING_construct_sprintf("link-%s-%s-%i", deviceId, tag, index);
 }
 
-static char* create_link_source_name(const char* link_name)
+static STRING_HANDLE create_link_source_name(STRING_HANDLE link_name)
 {
-	char* link_source_name = NULL;
+	return STRING_construct_sprintf("%s-source", STRING_c_str(link_name));
+}
 
-	if ((link_source_name = (char*)malloc(sizeof(char) * 1024)) == NULL)
-	{
-		LogError("Failed creating link source name: malloc() failed (link name: %s)", link_name);
-	}
-	else if (sprintf_s(link_source_name, 1024, "%s-source", link_name) == 0)
-	{
-		LogError("Failed creating link source name: sprintf_s() failed (link name: %s)", link_name);
-	}
-
-	return link_name;
+static STRING_HANDLE create_link_target_name(STRING_HANDLE link_name)
+{
+	return STRING_construct_sprintf("%s-target", STRING_c_str(link_name));
 }
 
 // Auxiliary function to be used on VECTOR_find_if()
@@ -920,8 +903,8 @@ static int createEventSender(AMQP_TRANSPORT_DEVICE_STATE* device_state)
 
     if (device_state->message_sender == NULL)
     {
-		char* link_name = NULL;
-		char* source_name = NULL;
+		STRING_HANDLE link_name = NULL;
+		STRING_HANDLE source_name = NULL;
         AMQP_VALUE source = NULL;
         AMQP_VALUE target = NULL;
 
@@ -929,12 +912,12 @@ static int createEventSender(AMQP_TRANSPORT_DEVICE_STATE* device_state)
 		{
 			LogError("Failed creating a name for the AMQP message sender link.");
 		}
-		else if ((source_name = create_link_name(STRING_c_str(device_state->deviceId), MESSAGE_SENDER_SOURCE_NAME_TAG, device_state->transport_state->link_count++)) == NULL)
+		else if ((source_name = create_link_source_name(link_name)) == NULL)
 		{
 			LogError("Failed creating a name for the AMQP message sender source.");
 		}
         // Codes_SRS_IOTHUBTRANSPORTAMQP_09_068: [IoTHubTransportAMQP_DoWork shall create the AMQP link for sending messages using 'source' as "ingress", target as the IoT hub FQDN, link name as "sender-link" and role as 'role_sender'] 
-        else if ((source = messaging_create_source(source_name)) == NULL)
+        else if ((source = messaging_create_source(STRING_c_str(source_name))) == NULL)
         {
             LogError("Failed creating AMQP messaging source attribute.");
         }
@@ -942,7 +925,7 @@ static int createEventSender(AMQP_TRANSPORT_DEVICE_STATE* device_state)
         {
             LogError("Failed creating AMQP messaging target attribute.");
         }
-        else if ((device_state->sender_link = link_create(device_state->transport_state->session, link_name, role_sender, source, target)) == NULL)
+        else if ((device_state->sender_link = link_create(device_state->transport_state->session, STRING_c_str(link_name), role_sender, source, target)) == NULL)
         {
             // Codes_SRS_IOTHUBTRANSPORTAMQP_09_069: [If IoTHubTransportAMQP_DoWork fails to create the AMQP link for sending messages, the function shall fail and return immediately, flagging the connection to be re-stablished] 
             LogError("Failed creating AMQP link for message sender.");
@@ -980,9 +963,9 @@ static int createEventSender(AMQP_TRANSPORT_DEVICE_STATE* device_state)
         }
 
 		if (link_name != NULL)
-			free(link_name);
+			STRING_delete(link_name);
 		if (source_name != NULL)
-			free(source_name);
+			STRING_delete(source_name);
         if (source != NULL)
             amqpvalue_destroy(source);
         if (target != NULL)
@@ -1044,8 +1027,8 @@ static int createMessageReceiver(AMQP_TRANSPORT_DEVICE_STATE* device_state)
 
     if (device_state->message_receiver == NULL)
     {
-		char* link_name = NULL;
-		char* target_name = NULL;
+		STRING_HANDLE link_name = NULL;
+		STRING_HANDLE target_name = NULL;
         AMQP_VALUE source = NULL;
         AMQP_VALUE target = NULL;
 
@@ -1053,7 +1036,7 @@ static int createMessageReceiver(AMQP_TRANSPORT_DEVICE_STATE* device_state)
 		{
 			LogError("Failed creating a name for the AMQP message receiver link.");
 		}
-		else if ((target_name = create_link_name(STRING_c_str(device_state->deviceId), MESSAGE_RECEIVER_TARGET_ADDRESS, device_state->transport_state->link_count++)) == NULL)
+		else if ((target_name = create_link_target_name(link_name)) == NULL)
 		{
 			LogError("Failed creating a name for the AMQP message receiver target.");
 		}
@@ -1062,11 +1045,11 @@ static int createMessageReceiver(AMQP_TRANSPORT_DEVICE_STATE* device_state)
         {
             LogError("Failed creating AMQP message receiver source attribute.");
         }
-        else if ((target = messaging_create_target(target_name)) == NULL)
+        else if ((target = messaging_create_target(STRING_c_str(target_name))) == NULL)
         {
             LogError("Failed creating AMQP message receiver target attribute.");
         }
-        else if ((device_state->receiver_link = link_create(device_state->transport_state->session, link_name, role_receiver, source, target)) == NULL)
+        else if ((device_state->receiver_link = link_create(device_state->transport_state->session, STRING_c_str(link_name), role_receiver, source, target)) == NULL)
         {
             // Codes_SRS_IOTHUBTRANSPORTAMQP_09_075: [If IoTHubTransportAMQP_DoWork fails to create the AMQP link for receiving messages, the function shall fail and return immediately, flagging the connection to be re-stablished] 
             LogError("Failed creating AMQP link for message receiver.");
@@ -1111,9 +1094,9 @@ static int createMessageReceiver(AMQP_TRANSPORT_DEVICE_STATE* device_state)
         }
 
 		if (link_name != NULL)
-			free(link_name);
+			STRING_delete(link_name);
 		if (target_name != NULL)
-			free(target_name);
+			STRING_delete(target_name);
         if (source != NULL)
             amqpvalue_destroy(source);
         if (target != NULL)

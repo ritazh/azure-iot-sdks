@@ -151,13 +151,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\iothub_client_sample_amqp.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\iothub_client_sample_amqp.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\iothub_client_sample_amqp_shared.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\iothub_client_sample_amqp_shared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
