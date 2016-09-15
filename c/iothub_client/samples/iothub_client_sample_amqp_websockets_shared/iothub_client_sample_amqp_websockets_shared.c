@@ -11,7 +11,7 @@
 #include "iothub_message.h"
 #include "iothubtransportamqp_websockets.h"
 
-#ifndef MBED_BUILD_TIMESTAMP
+#ifdef MBED_BUILD_TIMESTAMP
 #include "certs.h"
 #endif // MBED_BUILD_TIMESTAMP
 
@@ -234,7 +234,7 @@ void iothub_client_sample_amqp_websockets_shared_run(void)
             bool traceOn = true;
             IoTHubClient_LL_SetOption(iotHubClientHandle1, "logtrace", &traceOn);
 
-#ifndef MBED_BUILD_TIMESTAMP
+#ifdef MBED_BUILD_TIMESTAMP
             // For mbed add the certificate information
             if (IoTHubClient_LL_SetOption(iotHubClientHandle1, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
             {
