@@ -13,18 +13,23 @@ set(theseTestsName iothubclient_amqp_e2e)
 
 set(${theseTestsName}_cpp_files
 	${theseTestsName}.cpp
+        ../common_e2e/iothubclient_common_e2e.cpp
 )
 
 set(${theseTestsName}_nuget_cpp_files
        ${theseTestsName}.cpp
+        ../common_e2e/iothubclient_common_e2e.cpp
 )
 
 set(${theseTestsName}_c_files
+        ../../../certs/certs.c
 )
 
 set(${theseTestsName}_h_files
+        ../common_e2e/iothubclient_common_e2e.h
 )
 
+include_directories(../common_e2e)
 include_directories(${IOTHUB_TEST_INC_FOLDER})
 include_directories(${IOTHUB_SERVICE_CLIENT_INC_FOLDER})
 
